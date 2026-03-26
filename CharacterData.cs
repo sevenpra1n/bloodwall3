@@ -19,9 +19,9 @@ public class CharacterData : ScriptableObject
     public Sprite[] idleSprites;
     public Sprite[] attackSprites;
     [SerializeField] public Sprite skillIcon;
-    [SerializeField] public Sprite skillSpritesNormal;      // ← Обычное состояние
-    [SerializeField] public Sprite skillSpritesHover;       // ← При наведении
-    [SerializeField] public Sprite skillSpritesPressed;     // ← При нажатии
-    [SerializeField] public Sprite skillSpritesCooldown;    // ← На кулдауне
-    [SerializeField] public Sprite skillSpriteNoMana;         // ← Нет маны
+    [SerializeField] public Sprite[] skillSpritesNormal;    // ← Обычное состояние
+    [SerializeField] public Sprite[] skillSpritesHover;     // ← При наведении
+    [SerializeField] public Sprite[] skillSpritesPressed;   // ← При нажатии
+    [SerializeField] public Sprite[] skillSpritesCooldown;  // ← На кулдауне
+    [SerializeField] public Sprite skillSpriteNoMana;       // ← Нет маны
 }

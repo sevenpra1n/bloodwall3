@@ -11,6 +11,7 @@ public class AnimationController : MonoBehaviour
     [SerializeField] private float rushDistance = 100f;
     [SerializeField] private float rushSpeed = 0.3f;
     [SerializeField] private bool isEnemy = false;
+    [SerializeField] private AttackType attackType = AttackType.Melee;
 
     private Coroutine idleCoroutine;
     private bool isAttacking = false;
@@ -56,21 +57,20 @@ public class AnimationController : MonoBehaviour
         isAttacking = true;
 
         if (idleCoroutine != null)
-        {
             StopCoroutine(idleCoroutine);
-        }
 
-        float direction = isEnemy ? -rushDistance : rushDistance;
-        yield return StartCoroutine(MoveCharacter(direction, rushSpeed));
-
-        for (int i = 0; i < attackSprites.Length; i++)
+        if (attackType == AttackType.Melee)
         {
-            if (attackSprites[i] != null)
-                characterImage.sprite = attackSprites[i];
-            yield return new WaitForSeconds(frameDelay);
+            float direction = isEnemy ? -rushDistance : rushDistance;
+            yield return StartCoroutine(MoveCharacter(direction, rushSpeed));
+            yield return StartCoroutine(PlaySpriteAnimation(frameDelay));
+            yield return StartCoroutine(MoveCharacter(-direction, rushSpeed));
         }
-
-        yield return StartCoroutine(MoveCharacter(-direction, rushSpeed));
+        else
+        {
+            // Ranged: stay in place, only play sprite animation
+            yield return StartCoroutine(PlaySpriteAnimation(frameDelay));
+        }
 
         isAttacking = false;
 
@@ -88,21 +88,20 @@ public class AnimationController : MonoBehaviour
         isAttacking = true;
 
         if (idleCoroutine != null)
-        {
             StopCoroutine(idleCoroutine);
-        }
 
-        float direction = isEnemy ? -rushDistance : rushDistance;
-        yield return StartCoroutine(MoveCharacterFast(direction, 0.15f));
-
-        for (int i = 0; i < attackSprites.Length; i++)
+        if (attackType == AttackType.Melee)
         {
-            if (attackSprites[i] != null)
-                characterImage.sprite = attackSprites[i];
-            yield return new WaitForSeconds(frameDelay * 0.7f);
+            float direction = isEnemy ? -rushDistance : rushDistance;
+            yield return StartCoroutine(MoveCharacterFast(direction, 0.15f));
+            yield return StartCoroutine(PlaySpriteAnimation(frameDelay * 0.7f));
+            yield return StartCoroutine(MoveCharacterFast(-direction, 0.15f));
         }
-
-        yield return StartCoroutine(MoveCharacterFast(-direction, 0.15f));
+        else
+        {
+            // Ranged: stay in place, only play sprite animation (faster for ultimate)
+            yield return StartCoroutine(PlaySpriteAnimation(frameDelay * 0.7f));
+        }
 
         isAttacking = false;
 
@@ -110,6 +109,16 @@ public class AnimationController : MonoBehaviour
             characterImage.sprite = idleSprites[0];
 
         idleCoroutine = StartCoroutine(PlayIdleAnimation());
+    }
+
+    private IEnumerator PlaySpriteAnimation(float delay)
+    {
+        for (int i = 0; i < attackSprites.Length; i++)
+        {
+            if (attackSprites[i] != null)
+                characterImage.sprite = attackSprites[i];
+            yield return new WaitForSeconds(delay);
+        }
     }
 
     private IEnumerator MoveCharacter(float distance, float duration)
@@ -235,5 +244,11 @@ public class AnimationController : MonoBehaviour
             attackSprites = newAttackSprites;
             Debug.Log("✅ Attack спрайты обновлены: " + newAttackSprites.Length + " шт");
         }
+    }
+
+    public void SetAttackType(AttackType type)
+    {
+        attackType = type;
+        Debug.Log("✅ AttackType установлен: " + type);
     }
 }

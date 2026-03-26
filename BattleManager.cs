@@ -179,6 +179,9 @@ public class BattleManager : MonoBehaviour
                 {
                     playerAnimController.SetAttackSprites(charData.attackSprites);
                 }
+
+                // ТИП АТАКИ (Melee/Ranged)
+                playerAnimController.SetAttackType(charData.attackType);
             }
         }
 
@@ -192,23 +195,21 @@ public class BattleManager : MonoBehaviour
                 if (charData.skillIcon != null)
                     skillImage.sprite = charData.skillIcon;
 
-                // ЗАГРУЗИ СПРАЙТЫ СКИЛЛА ДЛЯ КНОПКИ
-                Button skillButton = skillImage.GetComponent<Button>();
-                if (skillButton != null)
-                {
-                    SpriteState spriteState = new SpriteState();
+                // ЗАГРУЗИ СПРАЙТЫ СКИЛЛА В ЛОКАЛЬНЫЕ ПОЛЯ (используются в UpdateSkillImage)
+                if (charData.skillSpritesNormal != null && charData.skillSpritesNormal.Length > 0)
+                    skillSpriteNormal = charData.skillSpritesNormal[0];
 
-                    if (charData.skillSpritesHover != null && charData.skillSpritesHover.Length > 0)
-                        spriteState.highlightedSprite = charData.skillSpritesHover[0];
+                if (charData.skillSpritesHover != null && charData.skillSpritesHover.Length > 0)
+                    skillSpriteHover = charData.skillSpritesHover[0];
 
-                    if (charData.skillSpritesPressed != null && charData.skillSpritesPressed.Length > 0)
-                        spriteState.pressedSprite = charData.skillSpritesPressed[0];
+                if (charData.skillSpritesPressed != null && charData.skillSpritesPressed.Length > 0)
+                    skillSpritePressed = charData.skillSpritesPressed[0];
 
-                    if (charData.skillSpritesCooldown != null && charData.skillSpritesCooldown.Length > 0)
-                        spriteState.disabledSprite = charData.skillSpritesCooldown[0];
+                if (charData.skillSpritesCooldown != null && charData.skillSpritesCooldown.Length > 0)
+                    skillSpriteCooldown = charData.skillSpritesCooldown[0];
 
-                    skillButton.spriteState = spriteState;
-                }
+                if (charData.skillSpriteNoMana != null)
+                    skillSpriteNoMana = charData.skillSpriteNoMana;
             }
         }
 
