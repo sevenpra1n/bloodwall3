@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5086dc692b268d24fbc41fa878c101b4, type: 3}
+  m_Name: Archer
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterData
+  type: 1
+  characterName: "\u041B\u0443\u0447\u043D\u0438\u043A"
+  description: "\u0411\u044B\u0441\u0442\u0440\u044B\u0439 \u043B\u0443\u0447\u043D\u0438\u043A
+    \u0441 \u0432\u044B\u0441\u043E\u043A\u0438\u043C \u0443\u0440\u043E\u043D\u043E\u043C"
+  icon: {fileID: 1216551465671004698, guid: ba66f40c429f8de468d052d37d1b50d5, type: 3}
+  price: 100
+  isUnlocked: 1
+  hpMultiplier: 0.8
+  dodgeChance: 0.2
+  idleSprites:
+  - {fileID: 1216551465671004698, guid: ba66f40c429f8de468d052d37d1b50d5, type: 3}
+  attackSprites:
+  - {fileID: 1216551465671004698, guid: ba66f40c429f8de468d052d37d1b50d5, type: 3}
