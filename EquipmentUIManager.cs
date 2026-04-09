@@ -457,64 +457,43 @@ public class EquipmentUIManager : MonoBehaviour
         if (targetSlot == null)
             yield break;
 
-        RectTransform slotRect = targetSlot.GetComponent<RectTransform>();
-        Vector3 originalPosition = slotRect.localPosition;
-        Vector3 originalScale = slotRect.localScale;
-
         PlayEquipSound(equipment.rarity);
 
-        switch (equipment.rarity)
+        yield return StartCoroutine(AnimatePlacementSmooth(targetSlot, equipment.rarity));
+    }
+
+    private IEnumerator AnimatePlacementSmooth(Image targetSlot, Rarity rarity)
+    {
+        const float duration = 0.35f;
+        Color rarityColor;
+        switch (rarity)
         {
-            case Rarity.Common:
-                yield return StartCoroutine(AnimationCommon(slotRect, originalPosition, originalScale, targetSlot));
-                break;
-            case Rarity.Rare:
-                yield return StartCoroutine(AnimationRare(slotRect, originalPosition, originalScale, targetSlot));
-                break;
-            case Rarity.Epic:
-                yield return StartCoroutine(AnimationEpic(slotRect, originalPosition, originalScale, targetSlot));
-                break;
-            case Rarity.Legendary:
-                yield return StartCoroutine(AnimationLegendary(slotRect, originalPosition, originalScale, targetSlot));
-                break;
-            case Rarity.Mythical:
-                yield return StartCoroutine(AnimationMythical(slotRect, originalPosition, originalScale, targetSlot));
-                break;
+            case Rarity.Rare:      rarityColor = new Color(1f, 0.6f, 0f);   break;
+            case Rarity.Epic:      rarityColor = new Color(0.8f, 0.2f, 1f); break;
+            case Rarity.Legendary: rarityColor = new Color(1f, 0.84f, 0f);  break;
+            case Rarity.Mythical:  rarityColor = new Color(1f, 0.2f, 0.2f); break;
+            default:               rarityColor = Color.white;                break;
         }
-    }
 
-    private IEnumerator AnimationCommon(RectTransform slotRect, Vector3 originalPosition, Vector3 originalScale, Image targetSlot)
-    {
-        yield return StartCoroutine(FlashSlotColor(targetSlot, Color.white, 0.6f));
-        slotRect.localScale = originalScale;
-    }
+        Color originalColor = targetSlot.color;
+        float elapsed = 0f;
 
-    private IEnumerator AnimationRare(RectTransform slotRect, Vector3 originalPosition, Vector3 originalScale, Image targetSlot)
-    {
-        Color rareColor = new Color(1f, 0.6f, 0f);
-        yield return StartCoroutine(FlashSlotColor(targetSlot, rareColor, 0.6f));
-        slotRect.localScale = originalScale;
-    }
+        while (elapsed < duration / 2f)
+        {
+            elapsed += Time.deltaTime;
+            targetSlot.color = Color.Lerp(originalColor, rarityColor, elapsed / (duration / 2f));
+            yield return null;
+        }
 
-    private IEnumerator AnimationEpic(RectTransform slotRect, Vector3 originalPosition, Vector3 originalScale, Image targetSlot)
-    {
-        Color epicColor = new Color(0.8f, 0.2f, 1f);
-        yield return StartCoroutine(FlashSlotColor(targetSlot, epicColor, 0.6f));
-        slotRect.localScale = originalScale;
-    }
+        elapsed = 0f;
+        while (elapsed < duration / 2f)
+        {
+            elapsed += Time.deltaTime;
+            targetSlot.color = Color.Lerp(rarityColor, originalColor, elapsed / (duration / 2f));
+            yield return null;
+        }
 
-    private IEnumerator AnimationLegendary(RectTransform slotRect, Vector3 originalPosition, Vector3 originalScale, Image targetSlot)
-    {
-        Color legendaryColor = new Color(1f, 0.84f, 0f);
-        yield return StartCoroutine(FlashSlotColor(targetSlot, legendaryColor, 0.6f));
-        slotRect.localScale = originalScale;
-    }
-
-    private IEnumerator AnimationMythical(RectTransform slotRect, Vector3 originalPosition, Vector3 originalScale, Image targetSlot)
-    {
-        Color mythicalColor = new Color(1f, 0.2f, 0.2f);
-        yield return StartCoroutine(FlashSlotColor(targetSlot, mythicalColor, 0.7f));
-        slotRect.localScale = originalScale;
+        targetSlot.color = originalColor;
     }
 
     private void PlayEquipSound(Rarity rarity)

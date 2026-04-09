@@ -116,6 +116,10 @@ public class MenuManager : MonoBehaviour
         PlayerPrefs.DeleteKey("JustFinishedBattle");
         PlayerPrefs.DeleteKey("LastBattleExpReward");
 
+        // ← ОЧИЩАЕМ ВЫБРАННОГО ПЕРСОНАЖА
+        PlayerPrefs.DeleteKey("CurrentCharacter");
+        PlayerPrefs.DeleteKey("ArcherUnlocked");
+
         // ← ОЧИЩАЕМ ВСЕ ПОКУПКИ (ВСЕ Purchased_* КЛЮЧИ)
         ResetAllPurchases();
 
@@ -128,6 +132,7 @@ public class MenuManager : MonoBehaviour
         PlayerPrefs.SetInt("PlayerLevel", 1);         // Уровень 1
         PlayerPrefs.SetInt("PlayerPower", 10);        // Базовая мощь 10
         PlayerPrefs.SetInt("CurrentStage", 0);        // Этаж 0
+        PlayerPrefs.SetString("CurrentCharacter", "Knight"); // Рыцарь по умолчанию
 
         PlayerPrefs.Save();
 
