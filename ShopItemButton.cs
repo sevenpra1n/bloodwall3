@@ -25,6 +25,12 @@ public class ShopItemButton : MonoBehaviour, IPointerEnterHandler, IPointerExitH
         if (itemIcon != null && equipment.icon != null)
         {
             itemIcon.sprite = equipment.icon;
+
+            // Apply persistent shimmer border based on rarity
+            RarityGlowEffect glow = itemIcon.gameObject.GetComponent<RarityGlowEffect>();
+            if (glow == null)
+                glow = itemIcon.gameObject.AddComponent<RarityGlowEffect>();
+            glow.Initialize(equipment.rarity);
         }
 
         // Кнопка для клика

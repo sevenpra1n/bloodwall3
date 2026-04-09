@@ -213,44 +213,52 @@ public class EquipmentUIManager : MonoBehaviour
         {
             weaponSlot.sprite = weapon.icon;
             weaponSlot.color = Color.white;
+            ApplyRarityGlow(weaponSlot, weapon.rarity);
         }
         else
         {
             weaponSlot.sprite = defaultWeaponSprite;
             weaponSlot.color = new Color(0.5f, 0.5f, 0.5f, 0.8f);
+            RemoveRarityGlow(weaponSlot);
         }
 
         if (head != null)
         {
             headSlot.sprite = head.icon;
             headSlot.color = Color.white;
+            ApplyRarityGlow(headSlot, head.rarity);
         }
         else
         {
             headSlot.sprite = defaultHeadSprite;
             headSlot.color = new Color(0.5f, 0.5f, 0.5f, 0.8f);
+            RemoveRarityGlow(headSlot);
         }
 
         if (body != null)
         {
             bodySlot.sprite = body.icon;
             bodySlot.color = Color.white;
+            ApplyRarityGlow(bodySlot, body.rarity);
         }
         else
         {
             bodySlot.sprite = defaultBodySprite;
             bodySlot.color = new Color(0.5f, 0.5f, 0.5f, 0.8f);
+            RemoveRarityGlow(bodySlot);
         }
 
         if (legs != null)
         {
             legsSlot.sprite = legs.icon;
             legsSlot.color = Color.white;
+            ApplyRarityGlow(legsSlot, legs.rarity);
         }
         else
         {
             legsSlot.sprite = defaultLegsSprite;
             legsSlot.color = new Color(0.5f, 0.5f, 0.5f, 0.8f);
+            RemoveRarityGlow(legsSlot);
         }
 
         UpdateStatsUI();
@@ -266,6 +274,21 @@ public class EquipmentUIManager : MonoBehaviour
             // ← ЗАПУСКАЕМ АНИМАЦИЮ МОЩИ
             StartCoroutine(AnimatePowerChange(oldPower, newPower));
         }
+    }
+
+    private void ApplyRarityGlow(Image slot, Rarity rarity)
+    {
+        RarityGlowEffect glow = slot.gameObject.GetComponent<RarityGlowEffect>();
+        if (glow == null)
+            glow = slot.gameObject.AddComponent<RarityGlowEffect>();
+        glow.Initialize(rarity);
+    }
+
+    private void RemoveRarityGlow(Image slot)
+    {
+        RarityGlowEffect glow = slot.gameObject.GetComponent<RarityGlowEffect>();
+        if (glow != null)
+            Destroy(glow);
     }
 
     public void UpdateCoinsUI()
@@ -462,167 +485,35 @@ public class EquipmentUIManager : MonoBehaviour
 
     private IEnumerator AnimationCommon(RectTransform slotRect, Vector3 originalPosition, Vector3 originalScale, Image targetSlot)
     {
-        float shakeDuration = 0.3f;
-        float shakeElapsed = 0f;
-
-        while (shakeElapsed < shakeDuration)
-        {
-            shakeElapsed += Time.deltaTime;
-            float progress = shakeElapsed / shakeDuration;
-
-            float shakeAmount = (1 - progress) * 15;
-            slotRect.localPosition = originalPosition + new Vector3(
-                Random.Range(-shakeAmount, shakeAmount),
-                Random.Range(-shakeAmount, shakeAmount),
-                0
-            );
-
-            yield return null;
-        }
-
-        slotRect.localPosition = originalPosition;
-        yield return StartCoroutine(FlashSlotColor(targetSlot, Color.white, 0.5f));
+        yield return StartCoroutine(FlashSlotColor(targetSlot, Color.white, 0.6f));
         slotRect.localScale = originalScale;
     }
 
     private IEnumerator AnimationRare(RectTransform slotRect, Vector3 originalPosition, Vector3 originalScale, Image targetSlot)
     {
-        float shakeDuration = 0.3f;
-        float shakeElapsed = 0f;
-
-        while (shakeElapsed < shakeDuration)
-        {
-            shakeElapsed += Time.deltaTime;
-            float progress = shakeElapsed / shakeDuration;
-
-            float shakeAmount = (1 - progress) * 15;
-            slotRect.localPosition = originalPosition + new Vector3(
-                Random.Range(-shakeAmount, shakeAmount),
-                Random.Range(-shakeAmount, shakeAmount),
-                0
-            );
-
-            yield return null;
-        }
-
-        slotRect.localPosition = originalPosition;
         Color rareColor = new Color(1f, 0.6f, 0f);
-        yield return StartCoroutine(FlashSlotColor(targetSlot, rareColor, 0.5f));
+        yield return StartCoroutine(FlashSlotColor(targetSlot, rareColor, 0.6f));
         slotRect.localScale = originalScale;
     }
 
     private IEnumerator AnimationEpic(RectTransform slotRect, Vector3 originalPosition, Vector3 originalScale, Image targetSlot)
     {
-        float duration = 0.6f;
-        float elapsed = 0f;
         Color epicColor = new Color(0.8f, 0.2f, 1f);
-
-        GameObject glowObject = new GameObject("GlowEffect");
-        glowObject.transform.SetParent(slotRect.parent);
-        glowObject.transform.localPosition = slotRect.localPosition;
-        Image glowImage = glowObject.AddComponent<Image>();
-        glowImage.sprite = targetSlot.sprite;
-        glowImage.color = new Color(epicColor.r, epicColor.g, epicColor.b, 0);
-        RectTransform glowRect = glowObject.GetComponent<RectTransform>();
-        glowRect.sizeDelta = slotRect.sizeDelta;
-
-        while (elapsed < duration)
-        {
-            elapsed += Time.deltaTime;
-            float progress = elapsed / duration;
-
-            slotRect.localRotation = Quaternion.Euler(0, 0, Mathf.Sin(progress * Mathf.PI * 4) * 15);
-            float glowAlpha = Mathf.Sin(progress * Mathf.PI) * 0.6f;
-            glowImage.color = new Color(epicColor.r, epicColor.g, epicColor.b, glowAlpha);
-            float glowScale = 1 + Mathf.Sin(progress * Mathf.PI) * 0.2f;
-            glowRect.localScale = new Vector3(glowScale, glowScale, 1);
-
-            yield return null;
-        }
-
-        slotRect.localRotation = Quaternion.identity;
-        Destroy(glowObject);
-        yield return StartCoroutine(FlashSlotColor(targetSlot, epicColor, 0.4f));
+        yield return StartCoroutine(FlashSlotColor(targetSlot, epicColor, 0.6f));
         slotRect.localScale = originalScale;
     }
 
     private IEnumerator AnimationLegendary(RectTransform slotRect, Vector3 originalPosition, Vector3 originalScale, Image targetSlot)
     {
-        float duration = 0.5f;
-        float elapsed = 0f;
         Color legendaryColor = new Color(1f, 0.84f, 0f);
-
-        GameObject glowObject = new GameObject("GlowEffect");
-        glowObject.transform.SetParent(slotRect.parent);
-        glowObject.transform.localPosition = slotRect.localPosition;
-        Image glowImage = glowObject.AddComponent<Image>();
-        glowImage.sprite = targetSlot.sprite;
-        glowImage.color = new Color(legendaryColor.r, legendaryColor.g, legendaryColor.b, 0);
-        RectTransform glowRect = glowObject.GetComponent<RectTransform>();
-        glowRect.sizeDelta = slotRect.sizeDelta;
-
-        while (elapsed < duration)
-        {
-            elapsed += Time.deltaTime;
-            float progress = elapsed / duration;
-
-            slotRect.localRotation = Quaternion.Euler(0, 0, progress * 360 * 2);
-            float scale = 1 + Mathf.Sin(progress * Mathf.PI * 3) * 0.15f;
-            slotRect.localScale = new Vector3(scale, scale, 1);
-            float glowAlpha = Mathf.Sin(progress * Mathf.PI * 2) * 0.7f;
-            glowImage.color = new Color(legendaryColor.r, legendaryColor.g, legendaryColor.b, glowAlpha);
-            float glowScale = 1 + Mathf.Sin(progress * Mathf.PI * 2) * 0.3f;
-            glowRect.localScale = new Vector3(glowScale, glowScale, 1);
-
-            yield return null;
-        }
-
-        slotRect.localRotation = Quaternion.identity;
-        slotRect.localScale = originalScale;
-        Destroy(glowObject);
-        yield return StartCoroutine(FlashSlotColor(targetSlot, legendaryColor, 0.3f));
+        yield return StartCoroutine(FlashSlotColor(targetSlot, legendaryColor, 0.6f));
         slotRect.localScale = originalScale;
     }
 
     private IEnumerator AnimationMythical(RectTransform slotRect, Vector3 originalPosition, Vector3 originalScale, Image targetSlot)
     {
-        float duration = 0.8f;
-        float elapsed = 0f;
         Color mythicalColor = new Color(1f, 0.2f, 0.2f);
-
-        GameObject glowObject = new GameObject("GlowEffect");
-        glowObject.transform.SetParent(slotRect.parent);
-        glowObject.transform.localPosition = slotRect.localPosition;
-        Image glowImage = glowObject.AddComponent<Image>();
-        glowImage.sprite = targetSlot.sprite;
-        glowImage.color = new Color(mythicalColor.r, mythicalColor.g, mythicalColor.b, 0);
-        RectTransform glowRect = glowObject.GetComponent<RectTransform>();
-        glowRect.sizeDelta = slotRect.sizeDelta;
-
-        while (elapsed < duration)
-        {
-            elapsed += Time.deltaTime;
-            float progress = elapsed / duration;
-
-            float jumpHeight = 100;
-            float jumpY = Mathf.Sin(progress * Mathf.PI) * jumpHeight;
-            slotRect.localPosition = originalPosition + new Vector3(0, jumpY, 0);
-            slotRect.localRotation = Quaternion.Euler(0, 0, progress * 360 * 3);
-            float scale = 1 + Mathf.Sin(progress * Mathf.PI) * 0.3f;
-            slotRect.localScale = new Vector3(scale, scale, 1);
-            float glowAlpha = Mathf.Abs(Mathf.Sin(progress * Mathf.PI * 4)) * 0.9f;
-            glowImage.color = new Color(mythicalColor.r, mythicalColor.g, mythicalColor.b, glowAlpha);
-            float glowScale = 1 + Mathf.Abs(Mathf.Sin(progress * Mathf.PI * 4)) * 0.4f;
-            glowRect.localScale = new Vector3(glowScale, glowScale, 1);
-
-            yield return null;
-        }
-
-        slotRect.localPosition = originalPosition;
-        slotRect.localRotation = Quaternion.identity;
-        slotRect.localScale = originalScale;
-        Destroy(glowObject);
-        yield return StartCoroutine(FlashSlotColor(targetSlot, mythicalColor, 0.5f));
+        yield return StartCoroutine(FlashSlotColor(targetSlot, mythicalColor, 0.7f));
         slotRect.localScale = originalScale;
     }
 

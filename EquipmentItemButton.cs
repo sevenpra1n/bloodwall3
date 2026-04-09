@@ -64,6 +64,12 @@ public class EquipmentItemButton : MonoBehaviour, IPointerEnterHandler, IPointer
         equipmentIcon.sprite = icon;
         equipmentIcon.color = Color.white;
 
+        // Apply persistent shimmer border based on rarity
+        RarityGlowEffect glow = equipmentIcon.gameObject.GetComponent<RarityGlowEffect>();
+        if (glow == null)
+            glow = equipmentIcon.gameObject.AddComponent<RarityGlowEffect>();
+        glow.Initialize(equipment.rarity);
+
         Debug.Log("Icon set successfully: " + icon.name);
     }
 
