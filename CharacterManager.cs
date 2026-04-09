@@ -43,11 +43,12 @@ public class CharacterManager : MonoBehaviour
     {
         LoadData();
 
-        // ← ДОБАВЬ ЭТО!
-        if (menuKnightAnimator != null && knightData != null && knightData.idleSprites != null && knightData.idleSprites.Length > 0)
+        // Apply sprites for the currently selected character
+        CharacterData currentData = GetCurrentCharacter();
+        if (menuKnightAnimator != null && currentData != null && currentData.idleSprites != null && currentData.idleSprites.Length > 0)
         {
-            menuKnightAnimator.SetIdleSprites(knightData.idleSprites);
-            menuKnightAnimator.characterImage.sprite = knightData.idleSprites[0];  // ← ПЕРВЫЙ КАДР!
+            menuKnightAnimator.SetIdleSprites(currentData.idleSprites);
+            menuKnightAnimator.characterImage.sprite = currentData.idleSprites[0];
         }
     }
 
