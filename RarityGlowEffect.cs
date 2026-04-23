@@ -44,38 +44,29 @@ public class RarityGlowEffect : MonoBehaviour
         rarityIndex = (int)rarity;
         if (rarityIndex < 0 || rarityIndex >= ColorA.Length) rarityIndex = 0;
 
-        // Create a sibling Image that sits BEHIND the icon and acts as the border ring.
-        // It must be a sibling (not a child) because in Unity UI children always render
-        // on top of their parent, which would put the border over the icon.
-        Transform iconParent = transform.parent != null ? transform.parent : transform;
+        // Create the border as a child of the icon so it is always attached to it,
+        // regardless of where the icon sits in the hierarchy (e.g. grid root).
+        // A nested Canvas with overrideSorting = true and a sortingOrder one below the
+        // nearest parent Canvas renders its content BEHIND the parent Canvas content,
+        // giving us the visual "glow behind the icon" without polluting the grid layout.
         borderGO = new GameObject("RarityBorder");
-        borderGO.transform.SetParent(iconParent, false);
-        // Place the border just before this icon in the sibling list so it renders behind it.
-        borderGO.transform.SetSiblingIndex(transform.GetSiblingIndex());
+        borderGO.transform.SetParent(transform, false);
+
+        Canvas borderCanvas = borderGO.AddComponent<Canvas>();
+        borderCanvas.overrideSorting = true;
+        Canvas parentCanvas = GetComponentInParent<Canvas>();
+        borderCanvas.sortingOrder = (parentCanvas != null ? parentCanvas.sortingOrder : 0) - 1;
 
         borderImage = borderGO.AddComponent<Image>();
         borderImage.color = ColorA[rarityIndex];
         borderImage.raycastTarget = false;
 
+        // Stretch to fill the icon and expand outward by BorderSize on every side.
         RectTransform borderRect = borderGO.GetComponent<RectTransform>();
-        // Mirror the icon's anchors so the border tracks the icon's position.
-        RectTransform iconRect = GetComponent<RectTransform>();
-        if (iconRect != null)
-        {
-            borderRect.anchorMin = iconRect.anchorMin;
-            borderRect.anchorMax = iconRect.anchorMax;
-            borderRect.anchoredPosition = iconRect.anchoredPosition;
-            borderRect.sizeDelta = iconRect.sizeDelta;
-        }
-        else
-        {
-            borderRect.anchorMin = Vector2.zero;
-            borderRect.anchorMax = Vector2.one;
-            borderRect.offsetMin = Vector2.zero;
-            borderRect.offsetMax = Vector2.zero;
-        }
-        borderRect.offsetMin -= new Vector2(BorderSize, BorderSize);
-        borderRect.offsetMax += new Vector2(BorderSize, BorderSize);
+        borderRect.anchorMin = Vector2.zero;
+        borderRect.anchorMax = Vector2.one;
+        borderRect.offsetMin = new Vector2(-BorderSize, -BorderSize);
+        borderRect.offsetMax = new Vector2(BorderSize, BorderSize);
 
         phase = (GetInstanceID() % 100) * 0.0628f;
     }
