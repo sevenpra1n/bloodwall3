@@ -35,7 +35,6 @@ public class RarityGlowEffect : MonoBehaviour
     private int rarityIndex;
     private float phase;
     private GameObject borderGO;
-    private GameObject maskGO;
 
     public void Initialize(Rarity rarity)
     {
@@ -45,39 +44,38 @@ public class RarityGlowEffect : MonoBehaviour
         rarityIndex = (int)rarity;
         if (rarityIndex < 0 || rarityIndex >= ColorA.Length) rarityIndex = 0;
 
-        // Create a child Image that sits behind the icon and acts as the border ring
+        // Create a sibling Image that sits BEHIND the icon and acts as the border ring.
+        // It must be a sibling (not a child) because in Unity UI children always render
+        // on top of their parent, which would put the border over the icon.
+        Transform iconParent = transform.parent != null ? transform.parent : transform;
         borderGO = new GameObject("RarityBorder");
-        borderGO.transform.SetParent(transform, false);
-        borderGO.transform.SetAsFirstSibling();
+        borderGO.transform.SetParent(iconParent, false);
+        // Place the border just before this icon in the sibling list so it renders behind it.
+        borderGO.transform.SetSiblingIndex(transform.GetSiblingIndex());
 
         borderImage = borderGO.AddComponent<Image>();
         borderImage.color = ColorA[rarityIndex];
         borderImage.raycastTarget = false;
 
         RectTransform borderRect = borderGO.GetComponent<RectTransform>();
-
-        borderRect.anchorMin = Vector2.zero;
-        borderRect.anchorMax = Vector2.one;
-        borderRect.offsetMin = new Vector2(-BorderSize, -BorderSize);
-        borderRect.offsetMax = new Vector2(BorderSize, BorderSize);
-
-        // Mask: create an inner transparent cutout so only the edge is visible
-        // We achieve this with a second solid Image that covers the centre and
-        // matches the icon area exactly, drawn on top of borderImage.
-        maskGO = new GameObject("RarityBorderMask");
-        maskGO.transform.SetParent(transform, false);
-        maskGO.transform.SetSiblingIndex(1);
-
-        Image maskImage = maskGO.AddComponent<Image>();
-        // Match the background colour of the slot (transparent) so the centre looks clear.
-        maskImage.color = new Color(0f, 0f, 0f, 0f);
-        maskImage.raycastTarget = false;
-
-        RectTransform maskRect = maskGO.GetComponent<RectTransform>();
-        maskRect.anchorMin = Vector2.zero;
-        maskRect.anchorMax = Vector2.one;
-        maskRect.offsetMin = Vector2.zero;
-        maskRect.offsetMax = Vector2.zero;
+        // Mirror the icon's anchors so the border tracks the icon's position.
+        RectTransform iconRect = GetComponent<RectTransform>();
+        if (iconRect != null)
+        {
+            borderRect.anchorMin = iconRect.anchorMin;
+            borderRect.anchorMax = iconRect.anchorMax;
+            borderRect.anchoredPosition = iconRect.anchoredPosition;
+            borderRect.sizeDelta = iconRect.sizeDelta;
+        }
+        else
+        {
+            borderRect.anchorMin = Vector2.zero;
+            borderRect.anchorMax = Vector2.one;
+            borderRect.offsetMin = Vector2.zero;
+            borderRect.offsetMax = Vector2.zero;
+        }
+        borderRect.offsetMin -= new Vector2(BorderSize, BorderSize);
+        borderRect.offsetMax += new Vector2(BorderSize, BorderSize);
 
         phase = (GetInstanceID() % 100) * 0.0628f;
     }
@@ -88,11 +86,6 @@ public class RarityGlowEffect : MonoBehaviour
         {
             Destroy(borderGO);
             borderGO = null;
-        }
-        if (maskGO != null)
-        {
-            Destroy(maskGO);
-            maskGO = null;
         }
         borderImage = null;
     }
